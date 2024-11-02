@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLCell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLCellIterator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLCellRange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLCellReference.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLCellValue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLColor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLColumn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLContentTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLDateTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLDocument.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLFormula.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLRelationships.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLRow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLRowData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLSharedStrings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLSheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLWorkbook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLXmlData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLXmlFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\sources\XLZipArchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Projects\Orders\Ruslana's photo renamer\OpenXLSX\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{BF9CE64D-D0C8-3F24-BFE5-94ECB403257F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

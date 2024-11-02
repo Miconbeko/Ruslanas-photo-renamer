@@ -1,0 +1,19 @@
+# CMake generation dependency list for this directory.
+D:/Programs/CMake/share/cmake-3.30/Modules/BasicConfigVersion-AnyNewerVersion.cmake.in
+D:/Programs/CMake/share/cmake-3.30/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/CMakePackageConfigHelpers.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/CheckCCompilerFlag.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/CheckCSourceCompiles.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/CheckCXXCompilerFlag.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/CheckCXXSourceCompiles.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/CheckCompilerFlag.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/CheckSourceCompiles.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/GNUInstallDirs.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/GenerateExportHeader.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/Internal/CheckCompilerFlag.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/Internal/CheckFlagCommonConfig.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/Internal/CheckSourceCompiles.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/WriteBasicConfigVersionFile.cmake
+D:/Programs/CMake/share/cmake-3.30/Modules/exportheader.cmake.in
+D:/Projects/Orders/Ruslana's photo renamer/OpenXLSX/CMakeLists.txt
+D:/Projects/Orders/Ruslana's photo renamer/OpenXLSX/OpenXLSXConfig.cmake
