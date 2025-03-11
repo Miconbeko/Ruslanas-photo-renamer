@@ -224,6 +224,9 @@ vector<string> Database::get_ids(string eurocode) {
     vector<string> res;
 
     for (auto it = range.first; it != range.second; ++it) {
+        if (it->second == "")
+            continue;
+            
         res.push_back(it->second);
     }
 
