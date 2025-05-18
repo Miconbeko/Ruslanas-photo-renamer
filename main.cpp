@@ -31,6 +31,7 @@ class Database {
         wstring sheetName;
         multimap<string, string> euroToId;
         map<string, string> euroToModel;
+        map<string, string> idToEuro;
         set<string> ids;
         set<string> models;
         set<string> eurocodes;
@@ -40,6 +41,7 @@ class Database {
         Database(fs::path filePath, wstring sheetName, string euroCol, string idCol, string modelCol);
         vector<string> get_ids(string eurocode);
         string get_model(string eurocode);
+        string get_eurocode(string id);
         bool contains_eurocode(string eurocode);
         bool contains_id(string id);
         bool contains_model(string model);
@@ -137,6 +139,13 @@ class GroupFoldersByModel : private Macros {
         virtual void execute();
 };
 
+class RenameIdsToEurocodeFiles : private Macros {
+    public:
+        RenameIdsToEurocodeFiles(fs::path dir, fs::path input_dir, Database* db, map<wstring, wstring>* env) : Macros(dir, input_dir, db, env) {}
+        virtual bool is_done(fs::path file, char separator = '-');
+        virtual void execute();
+};
+
 class MacrosExecutor {
     private:
         int macros_number;
@@ -193,20 +202,21 @@ void Database::load_db() {
                             id = idRange.begin(),
                             model = ModelRange.begin();
                             eurocode != eurocodeRange.end();
-                            eurocode++, id++, model++) {       
+                            eurocode++, id++, model++) {
         if (eurocode->value() == "") {
             emptyCellCount++;
             // TODO: maybe delete empty record
         }
         else
             emptyCellCount = 0;
-        
+
         if (emptyCellCount == EMPTY_CELLS_LIMIT)
             break;
 
         // cout << eurocode->value().getString() << " " << id->value().getString() << endl;
         euroToId.insert(make_pair<string, string>(eurocode->value().getString(), id->value().getString()));
         euroToModel.insert(make_pair<string, string>(eurocode->value().getString(), model->value().getString()));
+        idToEuro.insert(make_pair<string, string>(id->value().getString(), eurocode->value().getString()));
         eurocodes.insert(eurocode->value().getString());
         ids.insert(id->value().getString());
         models.insert(model->value().getString());
@@ -226,7 +236,7 @@ vector<string> Database::get_ids(string eurocode) {
     for (auto it = range.first; it != range.second; ++it) {
         if (it->second == "")
             continue;
-            
+
         res.push_back(it->second);
     }
 
@@ -241,15 +251,29 @@ string Database::get_model(string eurocode) {
     return "";
 }
 
+string Database::get_eurocode(string id) {
+    try {
+        return idToEuro.at(id);
+    } catch(...) {}
+
+    return "";
+}
+
 bool Database::contains_eurocode(string eurocode) {
     return euroToId.find(eurocode) != euroToId.end();
 }
 
 bool Database::contains_id(string id) {
+    if (id == "")
+        return false;
+
     return ids.find(id) != ids.end();
 }
 
 bool Database::contains_model(string model) {
+    if (model == "")
+        return false;
+
     return models.find(model) != models.end();
 }
 
@@ -339,7 +363,7 @@ bool AppendDirAsPrefixMacros::is_done(fs::path file, char separator) {
 
     if (file_name.find(separator) != string::npos && file_name.substr(0, file_name.find(separator)) == dirName)
         return true;
-    return false;  
+    return false;
 }
 
 void AppendDirAsPrefixMacros::execute() {
@@ -437,7 +461,7 @@ set<string> DeleteFilesWithEurocodeMacros::get_filenames(vector<fs::path> files)
 
     for (const auto& file : files)
         filenames.insert(file.filename().string());
-    
+
     return filenames;
 }
 
@@ -517,7 +541,7 @@ void RemoveIdsFromFolderMacros::execute() {
 
         cout << dye::yellow("RENAME FOLDER") << dye::light_yellow(" | ") << dir.string().substr(input_dir_len) << dye::light_yellow(" -> ") << newDir.string().substr(input_dir_len) << dye::light_yellow(" | ") ;
 
-        if (!db->contains_eurocode(eurocode)) 
+        if (!db->contains_eurocode(eurocode))
             throw logic_error("First word in folder's name (" + eurocode + ") isn't valid eurocode");
 
         fs::rename(dir, newDir);
@@ -550,7 +574,7 @@ void ConvertToJpgMacros::execute() {
     vector<fs::path> files = get_files();
     string dir_name = dir.filename().string();
     int input_dir_len = input_dir.string().length();
-    
+
     for (auto const& file : files) {
         vector<string> words = File::split_filename(file, SEPARATOR); // TODO: use .extension()
         fs::path newFile = ((fs::path)file.string()).replace_filename(words[0] + SEPARATOR + JPG_POSTFIX);
@@ -602,7 +626,7 @@ void NameFilesByDateMacros::execute() {
 
             fs::path new_file = ((fs::path)file.string()).replace_filename(legit_filenames[file_count] + ".jpg");
             file_count++;
-            
+
             if (file == new_file)
                 continue;
 
@@ -630,6 +654,10 @@ bool GroupPhotosByEurocode::is_done(fs::path dir, char separator) {
     string eurocode;
     File::remove_prefix(dir, &eurocode);
 
+    if (db->contains_id(eurocode)) {
+        eurocode = db->get_eurocode(eurocode);
+    }
+
     return db->contains_eurocode(eurocode) && dir.parent_path().filename() == eurocode;
 }
 
@@ -641,6 +669,11 @@ void GroupPhotosByEurocode::execute() {
     for (auto const& file : files) {
         string eurocode;
         File::remove_prefix(file, &eurocode);
+
+        if (db->contains_id(eurocode)) {
+            eurocode = db->get_eurocode(eurocode);
+        }
+
         fs::path new_dir = file.parent_path() / eurocode;
         fs::path new_file = (fs::path)new_dir.string() / file.filename();
 
@@ -721,6 +754,48 @@ void GroupFoldersByModel::execute() {
 }
 
 
+bool RenameIdsToEurocodeFiles::is_done(fs::path file, char separator) {
+    string fileName = file.stem().string();
+
+    return db->contains_eurocode(fileName);
+}
+
+void RenameIdsToEurocodeFiles::execute() {
+    vector<fs::path> files = get_files();
+    string dir_name = dir.filename().string();
+    int input_dir_len = input_dir.string().length();
+
+    for (auto const& file : files) {
+        string file_name = file.stem().string();
+        fs::path new_file;
+        string new_file_name;
+
+        try {
+            if (RenameIdsToEurocodeFiles::is_done(file))
+                continue;
+
+            new_file_name = db->get_eurocode(file_name) + ".jpg";
+            new_file = ((fs::path)file.string()).replace_filename(new_file_name);
+
+            cout << dye::yellow("RENAME") << dye::light_yellow(" | ")  << file.string().substr(input_dir_len) << dye::light_yellow(" -> ") << new_file.string().substr(input_dir_len) << dye::light_yellow(" | ");
+
+            if (!db->contains_id(file_name))
+                throw runtime_error("This filename is not an AB nomenclatuer");
+            if (fs::exists(new_file))
+                throw logic_error("File with name (" + new_file_name + ") is already exit");
+
+            fs::rename(file, new_file);
+            handle_success();
+        } catch (fs::filesystem_error err) {
+            handle_error(err);
+        } catch (runtime_error err) {
+            handle_error(err);
+        } catch (logic_error err) {
+            handle_error(err, "NAME ERROR", dye::on_yellow);
+        }
+    }
+}
+
 
 MacrosExecutor::MacrosExecutor(Database* db, map<wstring, wstring>* env) {
     this->db = db;
@@ -742,13 +817,14 @@ bool MacrosExecutor::ask_macros(bool until_correct) {
         cout << "6. Convert image files to .jpg" << endl;
         cout << "7. Group image files by Eurocode" << endl;
         cout << "8. Group Eurocode folders by Model" << endl;
+        cout << "9. Rename AB nomenclatures to their Eurocode in files" << endl;
 
         while (true) {
             cout << "Enter macro's number: \t";
             cin >> macrosNumStr;
             try {
                 macros_number = stoi(macrosNumStr);
-                if (macros_number < 1 || macros_number > 8)
+                if (macros_number < 1 || macros_number > 9)
                     throw runtime_error("");
                 else
                     return true;
@@ -785,7 +861,7 @@ bool MacrosExecutor::ask_allow_folders(bool until_correct) {
     while (true) {
         cout << dye::yellow("(WARNING) ") << "Should the macros be executed in folders that contains both folders and files? (y/n): \t";
         getline(cin >> ws, dirStr);
-        
+
         try {
             if (dirStr == "y" || dirStr == "Y")
                 this->allow_folders = true;
@@ -793,7 +869,7 @@ bool MacrosExecutor::ask_allow_folders(bool until_correct) {
                 this->allow_folders = false;
             else
                 throw runtime_error("");
-            
+
             return true;
         } catch (...) {
             cerr << endl << dye::red("Wrong input. Try again") << endl << endl;
@@ -895,6 +971,11 @@ void MacrosExecutor::exec(fs::path current_dir, char& btn) {
         case 8: {
             GroupFoldersByModel group_macros(current_dir, input_dir, db, env);
             group_macros.execute();
+            break;
+        }
+        case 9: {
+            RenameIdsToEurocodeFiles rename_macros(current_dir, input_dir, db, env);
+            rename_macros.execute();
             break;
         }
     }
