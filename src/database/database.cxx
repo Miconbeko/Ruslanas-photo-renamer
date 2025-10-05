@@ -61,15 +61,16 @@ void Database::load_db() {
                             cell_count++,
                             processed++,
                             retouched++) {
+        if (empty_cell_count == EMPTY_CELL_LIMIT) {
+            break;
+        }
+
         if (eurocode->value() == "") {
             empty_cell_count++;
+            continue;
         }
         else {
             empty_cell_count = 0;
-        }
-
-        if (empty_cell_count == EMPTY_CELL_LIMIT) {
-            break;
         }
 
         // cout << it->value().getString() << " " << cell_count << endl;
@@ -181,7 +182,7 @@ void Database::mark_eurocodes(std::vector<std::string> found_eurocodes, std::vec
         while (it_lower != it_upper) {
             if (it_lower->first == eurocode) {
                 sheet.cell(xl::XLCellReference(it_lower->second, PROCESSED_CHECK_COL_INDEX)).value() = "yes";
-                std::cout << it_lower->second << " " << PROCESSED_CHECK_COL_INDEX << " yes" << std::endl;
+                // std::cout << it_lower->second << " " << PROCESSED_CHECK_COL_INDEX << " yes" << std::endl;
             }
             it_lower++;
         }
@@ -194,13 +195,11 @@ void Database::mark_eurocodes(std::vector<std::string> found_eurocodes, std::vec
         while (it_lower != it_upper) {
             if (it_lower->first == eurocode) {
                 sheet.cell(xl::XLCellReference(it_lower->second, RETOUCHED_CHECK_COL_INDEX)).value() = "R";
-                std::cout << it_lower->second << " " << RETOUCHED_CHECK_COL_INDEX << " R" << std::endl;
+                // std::cout << it_lower->second << " " << RETOUCHED_CHECK_COL_INDEX << " R" << std::endl;
             }
             it_lower++;
         }
     }
-
-    std::cout << "Writing to file, please wait . . ." << std::endl;
 
     doc.save();
     doc.close();
