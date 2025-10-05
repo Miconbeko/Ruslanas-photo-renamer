@@ -60,11 +60,14 @@ namespace OpenXLSX
      * @details Constructor.
      * @pre The given range and location are both valid.
      * @post
+     * @note 2024-05-28: added support for constructing with an empty m_cellNode from an empty rowDataRange which will allow obtaining
+     *       an XLIteratorLocation::End for such a range so that iterations can fail in a controlled manner
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
         : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
-          m_cellNode(std::make_unique<XMLNode>(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol))),
-          m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
+          m_cellNode(std::make_unique<XMLNode>(
+              getCellNode((m_dataRange->size() ? *m_dataRange->m_rowNode : XMLNode {}), m_dataRange->m_firstCol))),
+          m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings.get()))
     {}
 
     /**
@@ -122,36 +125,30 @@ namespace OpenXLSX
     XLRowDataIterator& XLRowDataIterator::operator++()
     {
         // ===== Compute the column number, and move the m_cellNode to the next sibling.
-        const auto cellNumber = m_currentCell.cellReference().column() + 1;
-        auto       cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
+        const uint16_t cellNumber = m_currentCell.cellReference().column() + 1;
+        XMLNode        cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
 
         // ===== If the cellNumber exceeds the last column in the range,
         // ===== m_currentCell is set to an empty XLCell, indicating the end of the range has been reached.
         if (cellNumber > m_dataRange->m_lastCol) m_currentCell = XLCell();
 
-        // ====== If the cellNode is null (i.e. no more children in the current row node) or the column number of the cell node
+        // ====== If the cellNode is empty (i.e. no more children in the current row node) or the column number of the cell node
         // ====== is higher than the computed column number, then insert the node.
-        // TODO: When checking for > cellNumber rather than != cellNumber, m_cellNode->empty() fails. Why?
-        // TODO: Apparently only fails when assigning containers with POD values, rather XLCellValues.
-        // else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
-
         // BUG BUGFIX 2024-04-26: check was for m_cellNode->empty(), allowing an invalid test for the attribute r, discovered
         //       because the modified XLCellReference throws an exception on invalid parameter
-        //  this BUGFIX should explain the TODO above
         else if (cellNode.empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
             cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
-            cellNode.append_attribute("r").set_value(
-                XLCellReference(static_cast<uint32_t>(m_dataRange->m_rowNode->attribute("r").as_ullong()),
-                                static_cast<uint16_t>(cellNumber))
-                    .address()
-                    .c_str());
-            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            setDefaultCellAttributes(cellNode, XLCellReference(
+            /**/                                   static_cast<uint32_t>(m_dataRange->m_rowNode->attribute("r").as_ullong()), cellNumber
+            /**/                               ).address(),
+            /**/                               *m_dataRange->m_rowNode, cellNumber);
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
         }
 
         // ===== Otherwise, the cell node and the column number match.
         else {
             assert(XLCellReference(cellNode.attribute("r").value()).column() == cellNumber);
-            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
         }
 
         return *this;
@@ -190,8 +187,10 @@ namespace OpenXLSX
      */
     bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs) const
     {
-        if (m_currentCell && !rhs.m_currentCell) return false;
-        if (!m_currentCell && !rhs.m_currentCell) return true;
+        // 2024-05-28 BUGFIX: (!m_currentCell && rhs.m_currentCell) was not evaluated, triggering a segmentation fault on dereferencing
+        if (static_cast<bool>(m_currentCell) != static_cast<bool>(rhs.m_currentCell)) return false;
+        // ===== If execution gets here, current cells are BOTH valid or BOTH invalid / empty
+        if (not m_currentCell) return true;    // checking one for being empty is enough to know both are empty
         return m_currentCell == rhs.m_currentCell;
     }
 
@@ -231,10 +230,10 @@ namespace OpenXLSX
      * exception.
      */
     XLRowDataRange::XLRowDataRange()
-        : m_rowNode(),
+        : m_rowNode(nullptr),
           m_firstCol(1),    // first col of 1
           m_lastCol(0),     // and last col of 0 will ensure that size returns 0
-          m_sharedStrings()
+          m_sharedStrings(XLSharedStringsDefaulted)
     {
         // nothing to do
     }
@@ -245,7 +244,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataRange::XLRowDataRange(const XLRowDataRange& other)
-        : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)),
+        : m_rowNode((other.m_rowNode != nullptr) ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),    // 2024-05-28: support for copy-construction from an empty XLDataRange
           m_firstCol(other.m_firstCol),
           m_lastCol(other.m_lastCol),
           m_sharedStrings(other.m_sharedStrings)
@@ -299,8 +298,9 @@ namespace OpenXLSX
      * @details Get an iterator to the first cell in the range.
      * @pre
      * @post
+     * @note 2024-05-28: enhanced ::begin() to return an end iterator for an empty range
      */
-    XLRowDataIterator XLRowDataRange::begin() { return XLRowDataIterator { *this, XLIteratorLocation::Begin }; }
+    XLRowDataIterator XLRowDataRange::begin() { return XLRowDataIterator { *this, (size() > 0 ? XLIteratorLocation::Begin : XLIteratorLocation::End) }; }
 
     /**
      * @details Get an iterator to (one past) the last cell in the range.
@@ -379,13 +379,12 @@ namespace OpenXLSX
         deleteCellValues(static_cast<uint16_t>(values.size()));    // 2024-04-30: whitespace support
 
         // ===== prepend new cell nodes to current row node
-        auto curNode = XMLNode();
-        auto colNo   = values.size();
+        XMLNode curNode{};
+        uint16_t colNo = values.size();
         for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
             curNode = m_rowNode->prepend_child("c");
-            curNode.append_attribute("r").set_value(
-                XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), static_cast<uint16_t>(colNo)).address().c_str());
-            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
+            setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), colNo).address(), *m_rowNode, colNo);
+            XLCell(curNode, m_row->m_sharedStrings.get()).value() = *value;
             --colNo;
         }
 
@@ -405,7 +404,7 @@ namespace OpenXLSX
         if (values.size() > MAX_COLS) throw XLOverflowError("vector<bool> size exceeds maximum number of columns.");
         if (values.empty()) return *this;
 
-        auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), getSharedStrings());
+        auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), m_row->m_sharedStrings.get());
         auto dst   = range.begin();    // 2024-04-30: whitespace support: safe because XLRowDataRange::begin invokes whitespace-safe
                                        // getCellNode for column 1
         auto src = values.begin();
@@ -457,8 +456,8 @@ namespace OpenXLSX
         if (numCells > 0) {
             XMLNode node = lastElementChild;    // avoid unneeded call to first_child_of_type by iterating backwards, vector is random
                                                 // access so it doesn't matter
-            while (!node.empty()) {
-                result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
+            while (not node.empty()) {
+                result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings.get()).value();
                 node                                                              = node.previous_sibling_of_type(pugi::node_element);
             }
         }
@@ -468,12 +467,12 @@ namespace OpenXLSX
     }
 
     /**
-     * @details The function returns a pointer to an XLSharedStrings object embedded in the m_row member.
+     * @details The function returns a reference to the XLSharedStrings object embedded in the m_row member.
      * This is required because the XLRow class internals is not visible in the header file.
      * @pre
      * @post
      */
-    XLSharedStrings XLRowDataProxy::getSharedStrings() const { return m_row->m_sharedStrings; }
+    const XLSharedStrings& XLRowDataProxy::getSharedStrings() const { return m_row->m_sharedStrings.get(); }
 
     /**
      * @details The deleteCellValues is a convenience function used solely by the templated operator= function.
@@ -486,7 +485,7 @@ namespace OpenXLSX
         // ===== Mark cell nodes for deletion
         std::vector<XMLNode> toBeDeleted;
         XMLNode              cellNode = m_rowNode->first_child_of_type(pugi::node_element);
-        while (!cellNode.empty()) {
+        while (not cellNode.empty()) {
             if (XLCellReference(cellNode.attribute("r").value()).column() <= count) {
                 toBeDeleted.emplace_back(cellNode);
                 XMLNode nextNode = cellNode.next_sibling();    // get next "regular" sibling (any type) before advancing cellNode
@@ -515,14 +514,17 @@ namespace OpenXLSX
      */
     void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)    // NOLINT   // 2024-04-30: whitespace support
     {
-        // XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element); // pretty formatting by inserting before an existing
-        // first child XMLNode curNode{}; if (first_child.empty())
+        // ===== (disabled) Pretty formatting by inserting before an existing first child
+        // XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element);
+        // XMLNode curNode{};
+        // if (first_child.empty())
         //     curNode = m_rowNode->prepend_child("c");
         // else
         //     curNode = m_rowNode->insert_child_before("c", first_child);
-        auto curNode = m_rowNode->prepend_child("c");    // this will correctly insert a new cell directly at the beginning of the row
-        curNode.append_attribute("r").set_value(XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address().c_str());
-        XLCell(curNode, m_row->m_sharedStrings).value() = value;
+
+        XMLNode curNode = m_rowNode->prepend_child("c");    // this will correctly insert a new cell directly at the beginning of the row
+        setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address(), *m_rowNode, col);
+        XLCell(curNode, m_row->m_sharedStrings.get()).value() = value;
     }
 
     /**

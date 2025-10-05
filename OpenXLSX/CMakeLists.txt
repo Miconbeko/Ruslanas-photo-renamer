@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 set(OPENXLSX_MAJOR_VERSION 0)
 set(OPENXLSX_MINOR_VERSION 3)
-set(OPENXLSX_MICRO_VERSION 1)
+set(OPENXLSX_MICRO_VERSION 2)
 project(OpenXLSX.Library VERSION 0.3.2 LANGUAGES CXX)
 set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -31,6 +31,7 @@ set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 # Add build options
 #=======================================================================================================================
 option(OPENXLSX_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
+option(OPENXLSX_ENABLE_LTO "Enables Link-Time Optimization (LTO)" ON)
 set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED or STATIC")
 
 #=======================================================================================================================
@@ -95,19 +96,25 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLComments.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDateTime.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLDrawing.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLFormula.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLMergeCells.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLStyles.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLTables.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlParser.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
         )
 
@@ -116,7 +123,7 @@ set(OPENXLSX_SOURCES
 # STATIC AND SHARED LIBRARY
 #   Check that the input is valid
 #=======================================================================================================================
-if(NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC" AND NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
+if(NOT "${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC" AND NOT "${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     message( FATAL_ERROR "Invalid library type. Must be SHARED or STATIC." )
 endif()
 
@@ -124,7 +131,7 @@ endif()
 # STATIC LIBRARY
 #   Define the static library
 #=======================================================================================================================
-if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC")
+if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
     add_library(OpenXLSX STATIC "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
     target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
@@ -152,7 +159,7 @@ endif ()
 # SHARED LIBRARY
 #   Define the shared library
 #=======================================================================================================================
-if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
+if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     add_library(OpenXLSX SHARED "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
     target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
@@ -173,11 +180,13 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
     endif ()
 
     # Enable Link-Time Optimization (LTO)
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT result OUTPUT output)
-    if (result)
-        set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif ()
+    if(${OPENXLSX_ENABLE_LTO})
+        include(CheckIPOSupported)
+        check_ipo_supported(RESULT result OUTPUT output)
+        if (result)
+            set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        endif ()
+    endif()
 
 endif()
 

@@ -46,9 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLZIPARCHIVE_HPP
 #define OPENXLSX_XLZIPARCHIVE_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -165,5 +167,8 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(pop)
+#endif // _MSC_VER
+
 #endif    // OPENXLSX_XLZIPARCHIVE_HPP

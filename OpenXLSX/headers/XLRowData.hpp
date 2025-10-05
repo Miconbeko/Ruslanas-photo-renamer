@@ -5,9 +5,11 @@
 #ifndef OPENXLSX_XLROWDATA_HPP
 #define OPENXLSX_XLROWDATA_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== External Includes ===== //
 #include <deque>
@@ -186,6 +188,25 @@ namespace OpenXLSX
          */
         XLRowDataIterator end();
 
+        /**
+         * @brief Templated assignment operator - assign value to all existing cells in the row
+         * @note CAUTION: non-existing cells will not be assigned
+         * @tparam T The type of the value argument.
+         * @param value The value.
+         * @return A reference to the assigned-to object.
+         */
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
+        XLRowDataRange& operator=(T value)
+        {
+            // forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
+            for (auto it = begin(); it != end(); ++it) it->value() = value;
+            return *this;
+        }
+
     private:
         /**
          * @brief Constructor.
@@ -204,7 +225,7 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_rowNode;        /**< */
         uint16_t                 m_firstCol { 1 }; /**< The cell reference of the first cell in the range */
         uint16_t                 m_lastCol { 1 };  /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;  /**< */
+        XLSharedStringsRef       m_sharedStrings;  /**< */
     };
 
     /**
@@ -390,10 +411,11 @@ namespace OpenXLSX
         std::vector<XLCellValue> getValues() const;
 
         /**
-         * @brief Helper function for getting a pointer to the shared strings repository.
-         * @return A pointer to an XLSharedStrings object.
+         * @brief Helper function for getting a reference to the shared strings repository.
+         * @return A reference to the XLSharedStrings object.
+         * @note needed for templated XLRowDataProxy& operator=
          */
-        XLSharedStrings getSharedStrings() const;
+        const XLSharedStrings& getSharedStrings() const;
 
         /**
          * @brief Convenience function for erasing the first 'count' numbers of values in the row.
@@ -448,5 +470,8 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(pop)
+#endif // _MSC_VER
+
 #endif    // OPENXLSX_XLROWDATA_HPP

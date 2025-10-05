@@ -46,12 +46,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCOMMANDQUERY_HPP
 #define OPENXLSX_XLCOMMANDQUERY_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== External Includes ===== //
 #include <any>
+#include <cstdint> // uint8_t
 #include <map>
 #include <string>
 
@@ -67,11 +70,14 @@ namespace OpenXLSX
         SetSheetIndex,
         SetSheetActive,
         ResetCalcChain,
+        CheckAndFixCoreProperties,
+        CheckAndFixExtendedProperties,
         AddSharedStrings,
         AddWorksheet,
         AddChartsheet,
         DeleteSheet,
         CloneSheet,
+        AddStyles
     };
 
     /**
@@ -215,5 +221,8 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(pop)
+#endif // _MSC_VER
+
 #endif    // OPENXLSX_XLCOMMANDQUERY_HPP

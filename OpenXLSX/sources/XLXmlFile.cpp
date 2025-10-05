@@ -112,6 +112,7 @@ std::string XLXmlFile::relationshipID() const
 XMLDocument& XLXmlFile::xmlDocument()
 {
     return const_cast<XMLDocument&>(static_cast<const XLXmlFile*>(this)->xmlDocument());    // NOLINT
+    // return *m_xmlData->getXmlDocument();    // <- why not this easy version?
 }
 
 /**
@@ -120,4 +121,12 @@ XMLDocument& XLXmlFile::xmlDocument()
 const XMLDocument& XLXmlFile::xmlDocument() const
 {
     return *m_xmlData->getXmlDocument();
+}
+
+/**
+ * @details provide access to the underlying XLXmlData::getXmlPath() function
+ */
+std::string XLXmlFile::getXmlPath() const
+{
+    return m_xmlData == nullptr ? "" : m_xmlData->getXmlPath();
 }

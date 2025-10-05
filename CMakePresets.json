@@ -1,16 +1,20 @@
 {
-    "version": 8,
+    "version": 10,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
     "configurePresets": [
         {
-            "name": "MyProject",
-            "displayName": "GCC 13.2.0 x86_64-w64-mingw32 (ucrt64)",
-            "description": "Using compilers: C = C:\\Program Files\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\Program Files\\msys64\\ucrt64\\bin\\g++.exe",
-            "generator": "MinGW Makefiles",
+            "name": "make-linux-windows",
+            "displayName": "C++ build on Linux, use on Windows",
+            "description": "Using compilers: C = x86_64-w64-mingw32-gcc, C++ = x86_64-w64-mingw32-g++",
             "binaryDir": "${sourceDir}/build",
+            "installDir": "${sourceDir}/install",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
-                "CMAKE_C_COMPILER": "C:/Program Files/msys64/ucrt64/bin/gcc.exe",
-                "CMAKE_CXX_COMPILER": "C:/Program Files/msys64/ucrt64/bin/g++.exe",
+                "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc",
+                "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         }

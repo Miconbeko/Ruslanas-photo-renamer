@@ -46,11 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLWORKBOOK_HPP
 #define OPENXLSX_XLWORKBOOK_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== External Includes ===== //
+#include <ostream>    // std::basic_ostream
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
@@ -59,7 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLSharedStrings;
+    // class XLSharedStrings;
 
     class XLSheet;
 
@@ -91,7 +94,7 @@ namespace OpenXLSX
         /**
          * @brief Constructor. Takes a pointer to an XLXmlData object (stored in the parent XLDocument object).
          * @param xmlData A pointer to the underlying XLXmlData object, which holds the XML data.
-         * @note Do not create an XLWorkbook object directly. Get access through the an XLDocument object.
+         * @note Do not create an XLWorkbook object directly. Access via XLDocument::workbook().
          */
         explicit XLWorkbook(XLXmlData* xmlData);
 
@@ -155,7 +158,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the worksheet at the given index.
-         * @param index The index at which the desired sheet is located.
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLWorksheet worksheet(uint16_t index);
@@ -169,7 +172,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the chartsheet at the given index.
-         * @param index The index at which the desired sheet is located.
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLChartsheet chartsheet(uint16_t index);
@@ -199,14 +202,14 @@ namespace OpenXLSX
         /**
          * @brief
          * @param sheetName
-         * @param index
+         * @param index The index (1-based) where the sheet shall be moved to
          */
         void setSheetIndex(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
          * @param sheetName
-         * @return
+         * @return The index (1-based) of the sheet with sheetName
          */
         unsigned int indexOfSheet(const std::string& sheetName) const;
 
@@ -219,7 +222,7 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param index
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLSheetType typeOfSheet(unsigned int index) const;
@@ -288,18 +291,18 @@ namespace OpenXLSX
          */
         void updateSheetReferences(const std::string& oldName, const std::string& newName);
 
-        /**
-         * @brief
-         * @return
-         */
-        XLSharedStrings sharedStrings();
-
-        /**
-         * @brief
-         * @return
-         */
-        bool hasSharedStrings() const;
-
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // XLSharedStrings sharedStrings();
+        //
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // bool hasSharedStrings() const;
+        //
         /**
          * @brief
          */
@@ -313,7 +316,7 @@ namespace OpenXLSX
         /**
          * @brief print the XML contents of the workbook.xml using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char>>& os);
+        void print(std::basic_ostream<char>& ostr) const;
 
     private:    // ---------- Private Member Functions ---------- //
         /**
@@ -394,5 +397,8 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(pop)
+#endif // _MSC_VER
+
 #endif    // OPENXLSX_XLWORKBOOK_HPP

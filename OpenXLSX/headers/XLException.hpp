@@ -46,12 +46,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLEXCEPTION_HPP
 #define OPENXLSX_XLEXCEPTION_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== External Includes ===== //
-#include <stdexcept>
+#include <stdexcept>    // std::runtime_error
+#include <string>       // std::string - Issue #278 should be resolved by this
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -151,5 +154,8 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(pop)
+#endif // _MSC_VER
+
 #endif    // OPENXLSX_XLEXCEPTION_HPP

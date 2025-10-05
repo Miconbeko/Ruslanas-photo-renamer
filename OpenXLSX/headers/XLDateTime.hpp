@@ -46,9 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLDATETIME_HPP
 #define OPENXLSX_XLDATETIME_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== External Includes ===== //
 #include <ctime>
@@ -165,5 +167,9 @@ namespace OpenXLSX
         double m_serial { 1.0 }; /**<  */
     };
 }    // namespace OpenXLSX
+
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(pop)
+#endif // _MSC_VER
 
 #endif    // OPENXLSX_XLDATETIME_HPP

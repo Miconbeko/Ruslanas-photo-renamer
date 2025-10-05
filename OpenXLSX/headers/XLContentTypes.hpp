@@ -46,11 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCONTENTTYPES_HPP
 #define OPENXLSX_XLCONTENTTYPES_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== External Includes ===== //
+#include <cstdint> // uint8_t
 #include <memory>
 #include <string>
 #include <vector>
@@ -67,6 +70,7 @@ namespace OpenXLSX
      */
     enum class XLContentType : uint8_t {
         Workbook,
+        Relationships,
         WorkbookMacroEnabled,
         Worksheet,
         Chartsheet,
@@ -89,6 +93,13 @@ namespace OpenXLSX
         VMLDrawing,
         Unknown
     };
+
+    /**
+     * @brief utility function: determine the name of an XLContentType value
+     * @param type the XLContentType to get a name for
+     * @return a string with the name of type
+     */
+    std::string XLContentTypeToString( XLContentType type );
 
     /**
      * @brief
@@ -242,9 +253,12 @@ namespace OpenXLSX
          */
         std::vector<XLContentItem> getContentItems();
 
-        // ---------- Protected Member Functions ---------- //
+    private:   // ---------- Private Member Variables ---------- //
     };
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
+#   pragma warning(pop)
+#endif // _MSC_VER
+
 #endif    // OPENXLSX_XLCONTENTTYPES_HPP
