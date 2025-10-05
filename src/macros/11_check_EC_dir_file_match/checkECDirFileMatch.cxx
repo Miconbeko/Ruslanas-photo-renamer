@@ -6,7 +6,7 @@
 #include <string>
 
 bool CheckECDirFileMatch::is_done(fs::path entity) const {
-	return true;
+	throw std::logic_error("Is not implemented"); //TODO: create separate exception for this
 }
 
 void CheckECDirFileMatch::execute() {

@@ -11,6 +11,7 @@ add_subdirectory(08_remove_prefixes_in_files)
 add_subdirectory(09_delete_files_with_EC)
 add_subdirectory(10_rename_AB_to_EC_files)
 add_subdirectory(11_check_EC_dir_file_match)
+add_subdirectory(12_mark_found_EC_and_sized_files)
 
 target_link_libraries(macros PUBLIC
     database

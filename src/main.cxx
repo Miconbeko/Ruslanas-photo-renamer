@@ -13,6 +13,7 @@
 #include "macros/09_delete_files_with_EC/deleteFilesWithEC.hxx"
 #include "macros/10_rename_AB_to_EC_files/renameABToECFiles.hxx"
 #include "macros/11_check_EC_dir_file_match/checkECDirFileMatch.hxx"
+#include "macros/12_mark_found_EC_and_sized_files/markFoundECAndSizedFiles.hxx"
 
 #include <iostream>
 #include <windows.h>
@@ -86,15 +87,7 @@ int main() {
     DeleteFilesWithEC* deleteFilesWithEC = new DeleteFilesWithEC();
     RenameABToECFiles* renameABToECFiles = new RenameABToECFiles();
     CheckECDirFileMatch* checkECDirFileMatch = new CheckECDirFileMatch();
-
-
-
-
-
-
-
-
-
+    MarkFoundECAndSizedFiles* markFoundECAndSizedFiles = new MarkFoundECAndSizedFiles();
 
     SetConsoleSettings();
 
@@ -109,22 +102,13 @@ int main() {
     macrosExecutor.add_macros(deleteFilesWithEC);
     macrosExecutor.add_macros(renameABToECFiles);
     macrosExecutor.add_macros(checkECDirFileMatch);
+    macrosExecutor.add_macros(markFoundECAndSizedFiles);
 
     macrosExecutor.add_separator(3);
     macrosExecutor.add_separator(6);
-    // macrosExecutor.add_separator(7);
-    // macrosExecutor.add_separator(8);
 
     macrosExecutor.eventLoop();
 
-    // fs::path dir = env.get("PROCESS_DIRECTORY");
-    // std::set<std::string> found_eurocodes;
-    // std::set<std::string> sized_eurocodes;
-
-    // process_dir(dir, found_eurocodes, sized_eurocodes);
-
-    // db.mark_eurocodes(std::vector<std::string>(found_eurocodes.begin(), found_eurocodes.end()),
-    //                 std::vector<std::string>(sized_eurocodes.begin(), sized_eurocodes.end()));
 
     system("pause");
 

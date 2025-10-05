@@ -30,6 +30,7 @@ target_link_libraries(ruslanas-photo-account PRIVATE
     deleteFilesWithEC
     renameABToECFiles
     checkECDirFileMatch
+    markFoundECAndSizedFiles
 
     compiler_flags
 )
