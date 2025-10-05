@@ -167,10 +167,12 @@ void MacrosExecutor::eventLoop() {
         reset();
         ask_all();
 
+        current_macros->pre_execute();
         if (current_macros->get_exec_recursive()) {
             exec_recursive(initial_dir);
         } else {
             exec(initial_dir);
         }
+        current_macros->post_execute(!do_execute);
     }
 }

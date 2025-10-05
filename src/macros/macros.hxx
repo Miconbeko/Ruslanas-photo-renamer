@@ -50,4 +50,7 @@ class Macros {
         virtual bool is_exec_on_dirs_set() const = 0;
         virtual bool is_done(fs::path entity) const = 0;
         virtual void execute() = 0;
+
+        virtual void pre_execute() {};
+        virtual void post_execute(bool is_force_stop) {};
 };
