@@ -59,22 +59,28 @@ bool Utils::has_files(fs::path dir) {
     return false;
 }
 
-void Utils::handle_error(std::string err, std::string err_type, dye::R<std::string> (*func)(std::string)) {
-    std::cerr << func(err_type) << dye::black_on_black("*") << "\n";
+void Utils::handle_error(std::string info_msg, std::string err, std::string err_type, dye::R<std::string> (*func)(std::string)) {
+    Logger& logger = Logger::getInstance();
+
+    std::cout << func(err_type) << dye::black_on_black("*") << "\n";
     std::cerr << dye::light_red(err) << "\n\n";
+
+    logger.error(info_msg + err);
 }
 
-void Utils::handle_error(std::exception& err, std::string err_type, dye::R<std::string> (*func)(std::string)) {
-    handle_error(err.what(), err_type, func);
+void Utils::handle_error(std::string info_msg, std::exception& err, std::string err_type, dye::R<std::string> (*func)(std::string)) {
+    handle_error(info_msg, err.what(), err_type, func);
 }
 
-void Utils::handle_info(std::string info, fs::path initial_dir, fs::path old_entity, fs::path new_entity, dye::R<std::string> (*func)(std::string)) {
+std::string Utils::handle_info(std::string info, fs::path initial_dir, fs::path old_entity, fs::path new_entity, dye::R<std::string> (*func)(std::string)) {
     int initial_dir_len = initial_dir.string().length();
 
     std::cout << func(info) << dye::light_yellow(" | ")  << old_entity.string().substr(initial_dir_len) << dye::light_yellow(" -> ") << new_entity.string().substr(initial_dir_len) << dye::light_yellow(" | ");
+
+    return info + " | " + old_entity.string().substr(initial_dir_len) + " -> " + new_entity.string().substr(initial_dir_len) + " | ";
 }
 
-void Utils::handle_success() {
+void Utils::handle_success(std::string info_msg) {
     std::cout << dye::on_green("SUCCESS") << dye::black_on_black("*") << "\n";
 }
 

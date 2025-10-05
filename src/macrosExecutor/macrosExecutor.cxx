@@ -31,7 +31,7 @@ bool MacrosExecutor::ask_macros(bool loop_question) {
 
         i_macros = stoi(i_macros_str);
         if (i_macros < min_i_macros || i_macros > max_i_macros) {
-            Utils::handle_error("Wrong input. Try again");
+            Utils::handle_error("", "Wrong input. Try again");
             if (!loop_question) {
                 return false;
             }
@@ -58,7 +58,7 @@ bool MacrosExecutor::ask_path(bool loop_question) {
 
             return true;
         } catch (std::invalid_argument err) {
-            Utils::handle_error(err.what() + std::string(". Try again"));
+            Utils::handle_error("", err.what() + std::string(". Try again"));
             if (!loop_question) {
                 return false;
             }
@@ -80,7 +80,7 @@ bool MacrosExecutor::ask_exec_on_dirs(bool loop_question) {
             current_macros->set_exec_on_dirs(false);
         }
         else {
-            Utils::handle_error("Wrong input. Try again");
+            Utils::handle_error("", "Wrong input. Try again");
             if (!loop_question) {
                 return false;
             }
@@ -122,11 +122,14 @@ void MacrosExecutor::exec_recursive(fs::path current_dir) {
 }
 
 void MacrosExecutor::exec(fs::path current_dir) {
+    Logger& logger = Logger::getInstance();
     char btn;
 
     std::cout << dye::on_white("\n**********Processing**********") << dye::black_on_black("*\n");
     std::wcout << "Folder: " << current_dir.wstring() << "\n";
     std::cout << "Macros: " << i_macros + 1 << ". " << current_macros->get_name() << "\n\n";
+
+    logger.info("Executing macros (" + std::to_string(i_macros + 1) + ". " + current_macros->get_name() + ") on folder (" + current_dir.string() + ")");
 
     try {
         Utils::check_folder(current_dir);
@@ -134,7 +137,7 @@ void MacrosExecutor::exec(fs::path current_dir) {
         current_macros->set_current_dir(current_dir);
         current_macros->execute();
     } catch (std::invalid_argument err) {
-        Utils::handle_error(err);
+        Utils::handle_error("", err);
     }
 
     std::cout << "\nPress any key to continue (ESC or 'q' - stop execution) . . .\n";

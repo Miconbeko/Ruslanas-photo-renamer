@@ -17,6 +17,7 @@ bool GroupPhotosByEC::is_done(fs::path entity) const {
 }
 
 void GroupPhotosByEC::execute() {
+    std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);
 
     for (auto const& file : files) {
@@ -39,7 +40,7 @@ void GroupPhotosByEC::execute() {
                 continue;
             }
 
-            Utils::handle_info("GROUP", initial_dir, file, new_file, dye::light_purple);
+            info_msg = Utils::handle_info("GROUP", initial_dir, file, new_file, dye::light_purple);
 
             if (!db.contains_eurocode(eurocode)) {
                 throw std::logic_error("This Eurocode(`" + eurocode + "`) doesn't exist");
@@ -51,13 +52,13 @@ void GroupPhotosByEC::execute() {
             fs::create_directory(new_dir);
             fs::rename(file, new_file);
 
-            Utils::handle_success();
+            Utils::handle_success(info_msg);
         } catch (fs::filesystem_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::runtime_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::logic_error err) {
-            Utils::handle_error(err, "NAME ERROR", dye::on_yellow);
+            Utils::handle_error(info_msg, err, "NAME ERROR", dye::on_yellow);
         }
     }
 }

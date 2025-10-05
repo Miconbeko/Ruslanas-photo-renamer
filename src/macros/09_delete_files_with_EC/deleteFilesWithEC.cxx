@@ -41,6 +41,7 @@ bool DeleteFilesWithEC::is_done(fs::path entity) const {
 }
 
 void DeleteFilesWithEC::execute() {
+    std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);
     std::set<std::string> filenames = get_filenames(files);
 
@@ -53,18 +54,18 @@ void DeleteFilesWithEC::execute() {
         }
 
         try {
-            Utils::handle_info("DELETE", initial_dir, file, file, dye::blue);
+            info_msg = Utils::handle_info("DELETE", initial_dir, file, file, dye::blue);
 
             if (!is_ready(file, filenames)) {
                 throw std::runtime_error("This file has no copies or the error while copying was occurred. Stop deletion");
             }
 
             fs::remove(file);
-            Utils::handle_success();
+            Utils::handle_success(info_msg);
         } catch (fs::filesystem_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::runtime_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         }
     }
 }

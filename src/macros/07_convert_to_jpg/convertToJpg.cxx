@@ -18,6 +18,7 @@ bool ConvertToJpg::is_done(fs::path entity) const {
 void ConvertToJpg::execute() {
     const std::string JPG_POSTFIX = ".jpg";
 
+    std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);
 
     for (auto const& file : files) {
@@ -30,14 +31,14 @@ void ConvertToJpg::execute() {
                 continue;
             }
 
-            Utils::handle_info("CONVERT", initial_dir, file, new_file, dye::light_purple);
+            info_msg = Utils::handle_info("CONVERT", initial_dir, file, new_file, dye::light_purple);
 
             fs::rename(file, new_file);
-            Utils::handle_success();
+            Utils::handle_success(info_msg);
         } catch (fs::filesystem_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::runtime_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         }
     }
 }

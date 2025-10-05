@@ -17,6 +17,7 @@ bool RenameABToECFiles::is_done(fs::path entity) const {
 }
 
 void RenameABToECFiles::execute() {
+    std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);
 
     for (auto const& file : files) {
@@ -48,20 +49,20 @@ void RenameABToECFiles::execute() {
                 new_file = Utils::append_prefix(suffix, prefix);
             }
 
-            Utils::handle_info("RENAME", initial_dir, file, new_file, dye::yellow);
+            info_msg = Utils::handle_info("RENAME", initial_dir, file, new_file, dye::yellow);
 
             if (fs::exists(new_file)) {
                 throw std::logic_error("File with name (" + new_file.filename().string() + ") is already exit");
             }
 
             fs::rename(file, new_file);
-            Utils::handle_success();
+            Utils::handle_success(info_msg);
         } catch (fs::filesystem_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::runtime_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::logic_error err) {
-            Utils::handle_error(err, "NAME ERROR", dye::on_yellow);
+            Utils::handle_error(info_msg, err, "NAME ERROR", dye::on_yellow);
         }
     }
 }

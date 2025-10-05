@@ -19,6 +19,7 @@ bool AppendECToFile::is_done(fs::path entity) const {
 }
 
 void AppendECToFile::execute() {
+    std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);
     std::string current_dir_name = current_dir.filename().string();
     Utils& utils = Utils::getInstance();
@@ -38,7 +39,7 @@ void AppendECToFile::execute() {
                 continue;
             }
 
-            Utils::handle_info("RENAME", initial_dir, file, new_file, dye::yellow);
+            info_msg = Utils::handle_info("RENAME", initial_dir, file, new_file, dye::yellow);
 
             if (!utils.is_legit(file, false)) {
                 throw std::logic_error("This file has wrong name");
@@ -48,13 +49,13 @@ void AppendECToFile::execute() {
             }
 
             fs::rename(file, new_file);
-            Utils::handle_success();
+            Utils::handle_success(info_msg);
         } catch (fs::filesystem_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::runtime_error err) {
-            Utils::handle_error(err);
+            Utils::handle_error(info_msg, err);
         } catch (std::logic_error err) {
-            Utils::handle_error(err, "NAME ERROR", dye::on_yellow);
+            Utils::handle_error(info_msg, err, "NAME ERROR", dye::on_yellow);
         }
     }
 }
