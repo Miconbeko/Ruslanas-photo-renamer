@@ -12,13 +12,16 @@ Database::Database() {
     Config& env = Config::getInstance();
 
     this->filepath = env.get_ws("EXCEL_PATH");
-    this->sheetname = env.get_ws("EXCEL_SHEET");
+    this->sheetname = env.get("EXCEL_SHEET");
     this->EUROCODES_COL_INDEX = env.get("EXCEL_EUROCODE_COL");
     this->ID_COL_INDEX = env.get("EXCEL_AB_COL");
     this->BRAND_COL_INDEX = env.get("EXCEL_BRAND_COL");
     // this->MODEL_COL_INDEX = env.get("EXCEL_MODEL_COL");
     this->PROCESSED_CHECK_COL_INDEX = env.get("EXCEL_PROCESSED_CHECK_COL");
     this->RETOUCHED_CHECK_COL_INDEX = env.get("EXCEL_RETOUCHED_CHECK_COL");
+
+    this->missing_sheetname = env.get("EXCEL_MISSING_SHEET");
+    this->MISSING_ID_COL_INDEX = env.get("EXCEL_MISSING_AB_COL");
 
     load_db();
 }
@@ -36,7 +39,7 @@ void Database::load_db() {
     int empty_cell_count = 0;
 
     doc.open(filepath.string());
-    xl::XLWorksheet sheet = doc.workbook().worksheet(std::string(sheetname.begin(), sheetname.end()));
+    xl::XLWorksheet sheet = doc.workbook().worksheet(sheetname);
 
     xl::XLCellRange eurocode_range = sheet.range(xl::XLCellReference(2, EUROCODES_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, EUROCODES_COL_INDEX));
     xl::XLCellRange id_range = sheet.range(xl::XLCellReference(2, ID_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, ID_COL_INDEX));
@@ -45,6 +48,10 @@ void Database::load_db() {
     xl::XLCellRange processed_range = sheet.range(xl::XLCellReference(2, PROCESSED_CHECK_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, PROCESSED_CHECK_COL_INDEX));
     xl::XLCellRange retouched_range = sheet.range(xl::XLCellReference(2, RETOUCHED_CHECK_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, RETOUCHED_CHECK_COL_INDEX));
 
+    xl::XLWorksheet missing_sheet = doc.workbook().worksheet(missing_sheetname);
+
+    xl::XLCellRange missing_id_range = missing_sheet.range(xl::XLCellReference(2, MISSING_ID_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, MISSING_ID_COL_INDEX));
+
     std::cout << "Start loading data from excel file . . ." << std::endl;
     int cell_count = 2;
     for (xl::XLCellIterator eurocode = eurocode_range.begin(),
@@ -52,7 +59,8 @@ void Database::load_db() {
                             brand = brand_range.begin(),
                             // model = model_range.begin(),
                             processed = processed_range.begin(),
-                            retouched = retouched_range.begin();
+                            retouched = retouched_range.begin(),
+                            missing_id = missing_id_range.begin();
                             eurocode != eurocode_range.end();
                             eurocode++,
                             id++,
@@ -60,7 +68,9 @@ void Database::load_db() {
                             // model++,
                             cell_count++,
                             processed++,
-                            retouched++) {
+                            retouched++,
+                            missing_id++
+                        ) {
         if (empty_cell_count == EMPTY_CELL_LIMIT) {
             break;
         }
@@ -84,6 +94,8 @@ void Database::load_db() {
         brands.insert(brand->value().getString());
         // models.insert(model->value().getString());
 
+        missing_ids.insert(missing_id->value().getString());
+
         if (processed->value().getString() == "yes") {
             processed_rows.insert(cell_count);
         }
@@ -102,6 +114,7 @@ void Database::load_db() {
     // std::cout << "Number of loaded Models at column (" << MODEL_COL_INDEX << "): " << models.size() << std::endl;
     std::cout << "Number of processed AB at column (" << PROCESSED_CHECK_COL_INDEX << "): " << processed_rows.size() << std::endl;
     std::cout << "Number of retouched AB at column (" << RETOUCHED_CHECK_COL_INDEX << "): " << retouched_rows.size() << std::endl;
+    std::cout << "Number of missing AB on sheet (" << "missing_sheetname" << ") at column (" << MISSING_ID_COL_INDEX << "): " << missing_ids.size() << std::endl;
 
     doc.close();
 }
@@ -173,7 +186,7 @@ void Database::mark_eurocodes(std::vector<std::string> found_eurocodes, std::vec
     xl::XLDocument doc;
 
     doc.open(filepath.string());
-    xl::XLWorksheet sheet = doc.workbook().worksheet(std::string(sheetname.begin(), sheetname.end()));
+    xl::XLWorksheet sheet = doc.workbook().worksheet(sheetname);
 
     for (std::string eurocode : found_eurocodes) {
         auto it_lower = euro_to_row.lower_bound(eurocode);
@@ -203,4 +216,11 @@ void Database::mark_eurocodes(std::vector<std::string> found_eurocodes, std::vec
 
     doc.save();
     doc.close();
+}
+
+bool Database::contains_missing_id(std::string id) {
+    if (id == "")
+        return false;
+
+    return missing_ids.find(id) != missing_ids.end();
 }

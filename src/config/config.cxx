@@ -92,7 +92,7 @@ std::map<std::wstring, std::wstring> Config::ConvertEnvStringToMap(std::wstring 
         if (line.find('=') == std::string::npos)
             break;
 
-        // wcout << newline << " " << line.substr(0, line.find('=')) << " " << line.substr(line.find('=') + 1) << endl;
+        // std::wcout << newline << " " << line.substr(0, line.find('=')) << " " << line.substr(line.find('=') + 1) << std::endl;
         env.insert(std::make_pair(line.substr(0, line.find('=')), line.substr(line.find('=') + 1)));
 
         if (newline == std::string::npos)
