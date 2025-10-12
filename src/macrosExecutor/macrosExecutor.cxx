@@ -129,7 +129,7 @@ void MacrosExecutor::exec(fs::path current_dir) {
     std::wcout << "Folder: " << current_dir.wstring() << "\n";
     std::cout << "Macros: " << i_macros + 1 << ". " << current_macros->get_name() << "\n\n";
 
-    logger.info("Executing macros (" + std::to_string(i_macros + 1) + ". " + current_macros->get_name() + ") on folder (" + current_dir.string() + ")");
+    // logger.info("Executing macros (" + std::to_string(i_macros + 1) + ". " + current_macros->get_name() + ") on folder (" + current_dir.string() + ")");
 
     try {
         Utils::check_folder(current_dir);

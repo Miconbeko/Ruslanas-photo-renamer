@@ -2,6 +2,7 @@
 
 #include "config/config.hxx"
 
+#include <iostream>
 #include <string.h>
 
 Logger* Logger::logger = nullptr;
@@ -22,7 +23,7 @@ Logger& Logger::getInstance() {
 }
 
 void Logger::write(std::string level, std::string msg) {
-    if (!logger) {
+    if (!logging) {
         return;
     }
 
