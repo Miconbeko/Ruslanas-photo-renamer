@@ -14,6 +14,7 @@
 #include "macros/10_rename_AB_to_EC_files/renameABToECFiles.hxx"
 #include "macros/11_check_EC_dir_file_match/checkECDirFileMatch.hxx"
 #include "macros/12_mark_found_EC_and_sized_files/markFoundECAndSizedFiles.hxx"
+#include "macros/13_copy_missing_AB_files/copyMissingABFiles.hxx"
 
 #include <iostream>
 #include <windows.h>
@@ -88,6 +89,7 @@ int main() {
     RenameABToECFiles* renameABToECFiles = new RenameABToECFiles();
     CheckECDirFileMatch* checkECDirFileMatch = new CheckECDirFileMatch();
     MarkFoundECAndSizedFiles* markFoundECAndSizedFiles = new MarkFoundECAndSizedFiles();
+    CopyMissingABFiles* copyMissingABFiles = new CopyMissingABFiles();
 
     SetConsoleSettings();
 
@@ -103,6 +105,7 @@ int main() {
     macrosExecutor.add_macros(renameABToECFiles);
     macrosExecutor.add_macros(checkECDirFileMatch);
     macrosExecutor.add_macros(markFoundECAndSizedFiles);
+    macrosExecutor.add_macros(copyMissingABFiles);
 
     macrosExecutor.add_separator(3);
     macrosExecutor.add_separator(6);

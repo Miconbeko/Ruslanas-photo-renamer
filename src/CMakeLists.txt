@@ -31,6 +31,7 @@ target_link_libraries(ruslanas-photo-account PRIVATE
     renameABToECFiles
     checkECDirFileMatch
     markFoundECAndSizedFiles
+    copyMissingABFiles
 
     compiler_flags
 )
