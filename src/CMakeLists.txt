@@ -1,10 +1,10 @@
-add_executable(ruslanas-photo-account main.cxx)
+add_executable(ruslanas-photo-ultimate main.cxx)
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS_OFF)
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-# target_link_options(ruslanas-photo-account PRIVATE -Wl,--allow-multiple-definition)
+# target_link_options(ruslanas-photo-ultimate PRIVATE -Wl,--allow-multiple-definition)
 
 add_subdirectory(color)
 add_subdirectory(database)
@@ -14,7 +14,7 @@ add_subdirectory(utils)
 add_subdirectory(macrosExecutor)
 add_subdirectory(macros)
 
-target_link_libraries(ruslanas-photo-account PRIVATE
+target_link_libraries(ruslanas-photo-ultimate PRIVATE
     database
     config
     macrosExecutor
