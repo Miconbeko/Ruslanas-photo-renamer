@@ -32,6 +32,7 @@ target_link_libraries(ruslanas-photo-ultimate PRIVATE
     checkECDirFileMatch
     markFoundECAndSizedFiles
     copyMissingABFiles
+    correlateABWithOldEC
 
     compiler_flags
 )

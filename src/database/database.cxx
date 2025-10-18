@@ -23,6 +23,11 @@ Database::Database() {
     this->missing_sheetname = env.get("EXCEL_MISSING_SHEET");
     this->MISSING_ID_COL_INDEX = env.get("EXCEL_MISSING_AB_COL");
 
+    this->old_sheetname = env.get("EXCEL_OLD_SHEET");
+    this->OLD_EUROCODES_COL_INDEX = env.get("EXCEL_OLD_EUROCODE_COL");
+    this->OLD_ID_COL_INDEX = env.get("EXCEL_OLD_AB_COL");
+    this->OLD_EUROCODE_WRITE_COL_INDEX = env.get("EXCEL_OLD_EUROCODE_WRITE_COL");
+
     load_db();
 }
 
@@ -40,36 +45,38 @@ void Database::load_db() {
 
     doc.open(filepath.string());
     xl::XLWorksheet sheet = doc.workbook().worksheet(sheetname);
+    xl::XLWorksheet missing_sheet = doc.workbook().worksheet(missing_sheetname);
+    xl::XLWorksheet old_sheet = doc.workbook().worksheet(old_sheetname);
 
     xl::XLCellRange eurocode_range = sheet.range(xl::XLCellReference(2, EUROCODES_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, EUROCODES_COL_INDEX));
     xl::XLCellRange id_range = sheet.range(xl::XLCellReference(2, ID_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, ID_COL_INDEX));
     xl::XLCellRange brand_range = sheet.range(xl::XLCellReference(2, BRAND_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, BRAND_COL_INDEX));
-    // xl::XLCellRange model_range = sheet.range(xl::XLCellReference(2, MODEL_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, MODEL_COL_INDEX));
     xl::XLCellRange processed_range = sheet.range(xl::XLCellReference(2, PROCESSED_CHECK_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, PROCESSED_CHECK_COL_INDEX));
     xl::XLCellRange retouched_range = sheet.range(xl::XLCellReference(2, RETOUCHED_CHECK_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, RETOUCHED_CHECK_COL_INDEX));
-
-    xl::XLWorksheet missing_sheet = doc.workbook().worksheet(missing_sheetname);
-
     xl::XLCellRange missing_id_range = missing_sheet.range(xl::XLCellReference(2, MISSING_ID_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, MISSING_ID_COL_INDEX));
+    xl::XLCellRange old_eurocode_range = old_sheet.range(xl::XLCellReference(2, EUROCODES_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, EUROCODES_COL_INDEX));
+    xl::XLCellRange old_id_range = old_sheet.range(xl::XLCellReference(2, OLD_ID_COL_INDEX), xl::XLCellReference(xl::MAX_ROWS, OLD_ID_COL_INDEX));
 
     std::cout << "Start loading data from excel file . . ." << std::endl;
     int cell_count = 2;
     for (xl::XLCellIterator eurocode = eurocode_range.begin(),
                             id = id_range.begin(),
                             brand = brand_range.begin(),
-                            // model = model_range.begin(),
                             processed = processed_range.begin(),
                             retouched = retouched_range.begin(),
-                            missing_id = missing_id_range.begin();
+                            missing_id = missing_id_range.begin(),
+                            old_eurocode = old_eurocode_range.begin(),
+                            old_id = old_id_range.begin();
                             eurocode != eurocode_range.end();
                             eurocode++,
                             id++,
                             brand++,
-                            // model++,
                             cell_count++,
                             processed++,
                             retouched++,
-                            missing_id++
+                            missing_id++,
+                            old_eurocode++,
+                            old_id++
                         ) {
         if (empty_cell_count == EMPTY_CELL_LIMIT) {
             break;
@@ -77,24 +84,35 @@ void Database::load_db() {
 
         if (eurocode->value() == "") {
             empty_cell_count++;
-            continue;
         }
         else {
             empty_cell_count = 0;
         }
 
-        // cout << it->value().getString() << " " << cell_count << endl;
-        euro_to_row.insert(std::make_pair(eurocode->value().getString(), cell_count));
-        euro_to_id.insert(std::make_pair(eurocode->value().getString(), id->value().getString()));
-        euro_to_brand.insert(std::make_pair(eurocode->value().getString(), brand->value().getString()));
-        // euro_to_model.insert(std::make_pair(eurocode->value().getString(), model->value().getString()));
-        id_to_euro.insert(std::make_pair(id->value().getString(), eurocode->value().getString()));
-        eurocodes.insert(eurocode->value().getString());
-        ids.insert(id->value().getString());
-        brands.insert(brand->value().getString());
-        // models.insert(model->value().getString());
+        if (eurocode->value().getString() != "") {
+            euro_to_row.insert(std::make_pair(eurocode->value().getString(), cell_count));
+            euro_to_id.insert(std::make_pair(eurocode->value().getString(), id->value().getString()));
+            euro_to_brand.insert(std::make_pair(eurocode->value().getString(), brand->value().getString()));
+            eurocodes.insert(eurocode->value().getString());
+        }
 
-        missing_ids.insert(missing_id->value().getString());
+        if (id->value().getString() != "") {
+            ids.insert(id->value().getString());
+            id_to_euro.insert(std::make_pair(id->value().getString(), eurocode->value().getString()));
+            id_to_row.insert(std::make_pair(id->value().getString(), cell_count));
+        }
+
+        if (brand->value().getString() != "") {
+            brands.insert(brand->value().getString());
+        }
+
+        if (missing_id->value().getString() != "") {
+            missing_ids.insert(missing_id->value().getString());
+        }
+
+        if (old_id->value().getString() != "") {
+            id_to_old_euro.insert(std::make_pair(old_id->value().getString(), old_eurocode->value().getString()));
+        }
 
         if (processed->value().getString() == "yes") {
             processed_rows.insert(cell_count);
@@ -107,14 +125,13 @@ void Database::load_db() {
     std::cout << "Number of pairs <EC, AB>: " << euro_to_id.size() << std::endl;
     std::cout << "Number of pairs <EC, Row number>: " << euro_to_row.size() << std::endl;
     std::cout << "Number of pairs <EC, Brand>: " << euro_to_brand.size() << std::endl;
-    // std::cout << "Number of pairs <EC, Model>: " << euro_to_model.size() << std::endl;
     std::cout << "Number of loaded EC at column (" << EUROCODES_COL_INDEX << "): " << eurocodes.size() << std::endl;
     std::cout << "Number of loaded AB at column (" << ID_COL_INDEX << "): " << ids.size() << std::endl;
     std::cout << "Number of loaded Brands at column (" << BRAND_COL_INDEX << "): " << brands.size() << std::endl;
-    // std::cout << "Number of loaded Models at column (" << MODEL_COL_INDEX << "): " << models.size() << std::endl;
     std::cout << "Number of processed AB at column (" << PROCESSED_CHECK_COL_INDEX << "): " << processed_rows.size() << std::endl;
     std::cout << "Number of retouched AB at column (" << RETOUCHED_CHECK_COL_INDEX << "): " << retouched_rows.size() << std::endl;
-    std::cout << "Number of missing AB on sheet (" << "missing_sheetname" << ") at column (" << MISSING_ID_COL_INDEX << "): " << missing_ids.size() << std::endl;
+    std::cout << "Number of missing AB on sheet (" << missing_sheetname << ") at column (" << MISSING_ID_COL_INDEX << "): " << missing_ids.size() << std::endl;
+    std::cout << "Number of pairs <AB, old EC> on sheet (" << old_sheetname << "): " << id_to_old_euro.size() << std::endl;
 
     doc.close();
 }
@@ -141,20 +158,28 @@ std::string Database::get_brand(std::string eurocode) {
     return "";
 }
 
-// std::string Database::get_model(std::string eurocode) {
-//     try {
-//         return euro_to_model.at(eurocode);
-//     } catch(...) {}
-
-//     return "";
-// }
-
 std::string Database::get_eurocode(std::string id) {
     try {
         return id_to_euro.at(id);
     } catch(...) {}
 
     return "";
+}
+
+std::string Database::get_old_eurocode_by_id(std::string id) {
+    try {
+        return id_to_old_euro.at(id);
+    } catch(...) {}
+
+    return "";
+}
+
+int Database::get_row_by_id(std::string id) {
+    try {
+        return id_to_row.at(id);
+    } catch(...) {}
+
+    return 0;
 }
 
 bool Database::contains_eurocode(std::string eurocode) {
@@ -174,13 +199,6 @@ bool Database::contains_brand(std::string brand) {
 
     return brands.find(brand) != brands.end();
 }
-
-// bool Database::contains_model(std::string model) {
-//     if (model == "")
-//         return false;
-
-//     return models.find(model) != models.end();
-// }
 
 void Database::mark_eurocodes(std::vector<std::string> found_eurocodes, std::vector<std::string> sized_eurocodes) {
     xl::XLDocument doc;
@@ -212,6 +230,23 @@ void Database::mark_eurocodes(std::vector<std::string> found_eurocodes, std::vec
             }
             it_lower++;
         }
+    }
+
+    doc.save();
+    doc.close();
+}
+
+void Database::write_old_eurocodes(std::map<int, std::string> map_eurocodes) {
+    xl::XLDocument doc;
+
+    doc.open(filepath.string());
+    xl::XLWorksheet sheet = doc.workbook().worksheet(sheetname);
+
+    for (auto row_to_old_eurocode : map_eurocodes) {
+        int row = row_to_old_eurocode.first;
+        std::string old_eurocode = row_to_old_eurocode.second;
+
+        sheet.cell(xl::XLCellReference(row, OLD_EUROCODE_WRITE_COL_INDEX)).value() = old_eurocode;
     }
 
     doc.save();

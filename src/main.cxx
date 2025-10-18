@@ -15,6 +15,7 @@
 #include "macros/11_check_EC_dir_file_match/checkECDirFileMatch.hxx"
 #include "macros/12_mark_found_EC_and_sized_files/markFoundECAndSizedFiles.hxx"
 #include "macros/13_copy_missing_AB_files/copyMissingABFiles.hxx"
+#include "macros/14_correlate_AB_with_old_EC/correlateABWithOldEC.hxx"
 
 #include <iostream>
 #include <windows.h>
@@ -25,51 +26,6 @@ void SetConsoleSettings() {
     setlocale(LC_ALL, "");
     _wsetlocale(LC_ALL, L"");
 }
-
-// void process_file(fs::path filepath, std::set<std::string>& found_eurocodes, std::set<std::string>& sized_eurocodes) {
-//     Database& db = Database::getInstance();
-
-//     std::string filename = filepath.stem().string();
-//     int delimiter_pos = filename.find('-');
-//     std::string eurocode = filename.substr(0, delimiter_pos);
-//     std::string number = filename.substr(delimiter_pos + 1);
-
-//     // std::cout << filename << std::endl;
-//     if (number != "1") {
-//         return;
-//     }
-//     if (!db.contains_eurocode(eurocode)) {
-//         return;
-//     }
-//     found_eurocodes.insert(eurocode);
-
-//     std::cout << "Found " << eurocode << std::endl;
-
-//     auto image_info = imageinfo::parse<imageinfo::FilePathReader>(filepath.string());
-//     if (image_info.error()) {
-//         std::cerr << image_info.error_msg() << std::endl;
-//         return;
-//     }
-
-//     auto image_size = image_info.size();
-//     if (image_size.width != 2400 || image_size.height != 1800) {
-//         return;
-//     }
-//     sized_eurocodes.insert(eurocode);
-
-//     std::cout << "Correct size " << eurocode << std::endl;
-// }
-
-// void process_dir(fs::path dirpath, std::set<std::string>& found_eurocodes, std::set<std::string>& sized_eurocodes) {
-//     for (auto const& entry : fs::directory_iterator{dirpath}) {
-//         if (fs::is_directory(entry)) {
-//             process_dir(entry, found_eurocodes, sized_eurocodes);
-//         }
-//         if (fs::is_regular_file(entry)) {
-//             process_file(entry, found_eurocodes, sized_eurocodes);
-//         }
-//     }
-// }
 
 int main() {
     Config& env = Config::init(L"config.txt");
@@ -90,6 +46,7 @@ int main() {
     CheckECDirFileMatch* checkECDirFileMatch = new CheckECDirFileMatch();
     MarkFoundECAndSizedFiles* markFoundECAndSizedFiles = new MarkFoundECAndSizedFiles();
     CopyMissingABFiles* copyMissingABFiles = new CopyMissingABFiles();
+    CorrelateABWithOldEC* correlateABWithOldEC = new CorrelateABWithOldEC();
 
     SetConsoleSettings();
 
@@ -106,6 +63,7 @@ int main() {
     macrosExecutor.add_macros(checkECDirFileMatch);
     macrosExecutor.add_macros(markFoundECAndSizedFiles);
     macrosExecutor.add_macros(copyMissingABFiles);
+    macrosExecutor.add_macros(correlateABWithOldEC);
 
     macrosExecutor.add_separator(3);
     macrosExecutor.add_separator(6);
