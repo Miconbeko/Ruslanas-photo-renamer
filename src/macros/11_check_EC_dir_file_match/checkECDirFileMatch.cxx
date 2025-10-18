@@ -5,10 +5,6 @@
 #include <vector>
 #include <string>
 
-bool CheckECDirFileMatch::is_done(fs::path entity) const {
-	throw std::logic_error("Is not implemented"); //TODO: create separate exception for this
-}
-
 void CheckECDirFileMatch::execute() {
     std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);

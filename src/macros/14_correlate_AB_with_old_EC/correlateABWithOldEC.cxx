@@ -4,10 +4,6 @@
 
 #include <set>
 
-bool CorrelateABWithOldEC::is_done(fs::path entity) const {
-    throw std::logic_error("Is not implemented"); //TODO: create separate exception for this
-}
-
 void CorrelateABWithOldEC::execute() {
     std::set<std::string> all_ids = db.get_all_ids();
 

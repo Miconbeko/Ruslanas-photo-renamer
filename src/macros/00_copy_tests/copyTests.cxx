@@ -9,10 +9,6 @@ CopyTests::CopyTests(std::string current_dir, std::string initial_dir) : Macros:
 	copy_dest = this->config.get_ws("TESTS_PATH");
 }
 
-bool CopyTests::is_done(fs::path entity) const {
-  	throw std::logic_error("Is not implemented"); //TODO: create separate exception for this
-}
-
 void CopyTests::execute() {
 	std::vector<fs::path> dirs = Utils::get_files(current_dir);
     std::string info_msg;

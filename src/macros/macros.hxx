@@ -41,14 +41,15 @@ class Macros {
         void set_initial_dir(fs::path dir);
         void set_exec_on_files(bool value) { this->exec_on_files = value; }
         void set_exec_on_dirs(bool value) { this->exec_on_dirs = value; }
+        void set_exec_recursive(bool value) { this->exec_recursive = value; }
 
         bool get_exec_on_files() { return exec_on_files; }
         bool get_exec_on_dirs() { return exec_on_dirs; }
         bool get_exec_recursive() { return exec_recursive; }
 
         virtual std::string get_name() const = 0;
-        virtual bool is_exec_on_dirs_set() const = 0;
-        virtual bool is_done(fs::path entity) const = 0;
+        virtual bool is_exec_on_dirs_set() const { return true; }
+        virtual bool is_done(fs::path entity) const;
         virtual void execute() = 0;
 
         virtual void pre_execute() {};

@@ -3,10 +3,6 @@
 #include "utils/utils.hxx"
 #include "imageinfo/imageinfo.hpp"
 
-bool MarkFoundECAndSizedFiles::is_done(fs::path entity) const {
-    throw std::logic_error("Is not implemented"); //TODO: create separate exception for this
-}
-
 void MarkFoundECAndSizedFiles::execute() {
     std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);

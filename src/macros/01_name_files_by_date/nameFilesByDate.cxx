@@ -6,10 +6,6 @@ void NameFilesByDate::sort_files_by_update_time(std::vector<fs::path>& files) {
     sort(files.begin(), files.end(), [] (fs::path& e1, fs::path& e2) { return fs::last_write_time(e1) < fs::last_write_time(e2); });
 }
 
-bool NameFilesByDate::is_done(fs::path entity) const {
-    throw std::logic_error("Is not implemented"); //TODO: create separate exception for this
-}
-
 void NameFilesByDate::execute() {
     std::string info_msg;
     std::vector<fs::path> files = Utils::get_files(current_dir);
