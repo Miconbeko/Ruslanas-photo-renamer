@@ -126,15 +126,18 @@ void MacrosExecutor::exec(fs::path current_dir) {
     char btn;
 
     std::cout << dye::on_white("\n**********Processing**********") << dye::black_on_black("*\n");
-    std::wcout << "Folder: " << current_dir.wstring() << "\n";
+    if (current_macros->get_path_required()) {
+        std::wcout << "Folder: " << current_dir.wstring() << "\n";
+    }
     std::cout << "Macros: " << i_macros + 1 << ". " << current_macros->get_name() << "\n\n";
 
     // logger.info("Executing macros (" + std::to_string(i_macros + 1) + ". " + current_macros->get_name() + ") on folder (" + current_dir.string() + ")");
 
     try {
-        Utils::check_folder(current_dir);
-
-        current_macros->set_current_dir(current_dir);
+        if (current_macros->get_path_required()) {
+            Utils::check_folder(current_dir);
+            current_macros->set_current_dir(current_dir);
+        }
         current_macros->execute();
     } catch (std::invalid_argument err) {
         Utils::handle_error("", err);
@@ -151,6 +154,9 @@ void MacrosExecutor::exec(fs::path current_dir) {
 void MacrosExecutor::ask_all() {
     while (true) {
         ask_macros();
+        if (!current_macros->get_path_required()) {
+            break;
+        }
         if (!current_macros->is_exec_on_dirs_set()) {
             ask_exec_on_dirs();
         }
