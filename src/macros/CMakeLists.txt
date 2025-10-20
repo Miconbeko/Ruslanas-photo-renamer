@@ -14,6 +14,7 @@ add_subdirectory(11_check_EC_dir_file_match)
 add_subdirectory(12_mark_found_EC_and_sized_files)
 add_subdirectory(13_copy_missing_AB_files)
 add_subdirectory(14_correlate_AB_with_old_EC)
+add_subdirectory(15_rename_old_EC_folders_to_new)
 
 target_link_libraries(macros PUBLIC
     database

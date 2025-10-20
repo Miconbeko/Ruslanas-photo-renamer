@@ -16,6 +16,7 @@
 #include "macros/12_mark_found_EC_and_sized_files/markFoundECAndSizedFiles.hxx"
 #include "macros/13_copy_missing_AB_files/copyMissingABFiles.hxx"
 #include "macros/14_correlate_AB_with_old_EC/correlateABWithOldEC.hxx"
+#include "macros/15_rename_old_EC_folders_to_new/renameOldECFoldersToNew.hxx"
 
 #include <iostream>
 #include <windows.h>
@@ -47,6 +48,7 @@ int main() {
     MarkFoundECAndSizedFiles* markFoundECAndSizedFiles = new MarkFoundECAndSizedFiles();
     CopyMissingABFiles* copyMissingABFiles = new CopyMissingABFiles();
     CorrelateABWithOldEC* correlateABWithOldEC = new CorrelateABWithOldEC();
+    RenameOldECFoldersToNew* renameOldECFoldersToNew = new RenameOldECFoldersToNew();
 
     SetConsoleSettings();
 
@@ -64,6 +66,7 @@ int main() {
     macrosExecutor.add_macros(markFoundECAndSizedFiles);
     macrosExecutor.add_macros(copyMissingABFiles);
     macrosExecutor.add_macros(correlateABWithOldEC);
+    macrosExecutor.add_macros(renameOldECFoldersToNew);
 
     macrosExecutor.add_separator(3);
     macrosExecutor.add_separator(6);

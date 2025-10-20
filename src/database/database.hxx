@@ -32,15 +32,17 @@ class Database {
 
         std::multimap<std::string, int> euro_to_row;
         std::multimap<std::string, std::string> euro_to_id;
+        std::multimap<std::string, std::string> old_euro_to_id;
         std::map<std::string, std::string> euro_to_brand;
 
+        std::map<std::string, int> id_to_row;
         std::map<std::string, std::string> id_to_euro;
         std::map<std::string, std::string> id_to_old_euro;
-        std::map<std::string, int> id_to_row;
 
+        std::set<std::string> eurocodes;
+        std::set<std::string> old_eurocodes;
         std::set<std::string> ids;
         std::set<std::string> brands;
-        std::set<std::string> eurocodes;
         std::set<int> processed_rows;
         std::set<int> retouched_rows;
         std::set<std::string> missing_ids;
@@ -53,6 +55,7 @@ class Database {
         static Database& getInstance();
 
         std::vector<std::string> get_ids(std::string eurocode);
+        std::vector<std::string> get_old_eurocode_ids(std::string eurocode);
         std::string get_brand(std::string eurocode);
         std::string get_eurocode(std::string id);
         std::string get_old_eurocode_by_id(std::string id);
@@ -61,6 +64,7 @@ class Database {
         std::set<std::string> get_all_ids() { return ids; };
 
         bool contains_eurocode(std::string eurocode);
+        bool contains_old_eurocode(std::string eurocode);
         bool contains_id(std::string id);
         bool contains_brand(std::string brand);
         bool contains_missing_id(std::string id);

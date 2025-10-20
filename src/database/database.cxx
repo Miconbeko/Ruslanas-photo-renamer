@@ -114,6 +114,11 @@ void Database::load_db() {
             id_to_old_euro.insert(std::make_pair(old_id->value().getString(), old_eurocode->value().getString()));
         }
 
+        if (old_eurocode->value().getString() != "") {
+            old_euro_to_id.insert(std::make_pair(old_eurocode->value().getString(), old_id->value().getString()));
+            old_eurocodes.insert(old_eurocode->value().getString());
+        }
+
         if (processed->value().getString() == "yes") {
             processed_rows.insert(cell_count);
         }
@@ -138,6 +143,20 @@ void Database::load_db() {
 
 std::vector<std::string> Database::get_ids(std::string eurocode) {
     auto range = euro_to_id.equal_range(eurocode);
+    std::vector<std::string> res;
+
+    for (auto it = range.first; it != range.second; ++it) {
+        if (it->second == "")
+            continue;
+
+        res.push_back(it->second);
+    }
+
+    return res;
+}
+
+std::vector<std::string> Database::get_old_eurocode_ids(std::string eurocode) {
+    auto range = old_euro_to_id.equal_range(eurocode);
     std::vector<std::string> res;
 
     for (auto it = range.first; it != range.second; ++it) {
@@ -184,6 +203,10 @@ int Database::get_row_by_id(std::string id) {
 
 bool Database::contains_eurocode(std::string eurocode) {
     return eurocodes.find(eurocode) != eurocodes.end();
+}
+
+bool Database::contains_old_eurocode(std::string eurocode) {
+    return old_eurocodes.find(eurocode) != old_eurocodes.end();
 }
 
 bool Database::contains_id(std::string id) {
