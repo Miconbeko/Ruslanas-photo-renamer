@@ -16,7 +16,7 @@ void CorrelateABWithOldEC::execute() {
         }
 
         if (new_eurocode == old_eurocode) {
-            old_eurocode = "-";
+            old_eurocode = "";
         }
 
         int row = db.get_row_by_id(id);

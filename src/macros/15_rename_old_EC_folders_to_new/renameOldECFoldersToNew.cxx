@@ -31,6 +31,10 @@ void RenameOldECFoldersToNew::execute() {
 
             std::string eurocode = db.get_eurocode(old_ids.at(0));
 
+            if (eurocode == old_eurocode) {
+                continue;
+            }
+
             fs::path new_dir = ((fs::path)dest_dir).append(eurocode);
 
             info_msg = Utils::handle_info("COPY", "", dir, new_dir, dye::yellow);
