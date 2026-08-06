@@ -34,6 +34,7 @@ target_link_libraries(ruslanas-photo-ultimate PRIVATE
     copyMissingABFiles
     correlateABWithOldEC
     renameOldECFoldersToNew
+    groupPhotosByAB
 
     compiler_flags
 )

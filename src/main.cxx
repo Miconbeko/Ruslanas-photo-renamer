@@ -17,6 +17,7 @@
 #include "macros/13_copy_missing_AB_files/copyMissingABFiles.hxx"
 #include "macros/14_correlate_AB_with_old_EC/correlateABWithOldEC.hxx"
 #include "macros/15_rename_old_EC_folders_to_new/renameOldECFoldersToNew.hxx"
+#include "macros/16_group_files_by_AB/groupPhotosByAB.hxx"
 
 #include <iostream>
 #include <windows.h>
@@ -49,6 +50,7 @@ int main() {
     CopyMissingABFiles* copyMissingABFiles = new CopyMissingABFiles();
     CorrelateABWithOldEC* correlateABWithOldEC = new CorrelateABWithOldEC();
     RenameOldECFoldersToNew* renameOldECFoldersToNew = new RenameOldECFoldersToNew();
+    GroupPhotosByAB* groupPhotosByAB = new GroupPhotosByAB();
 
     SetConsoleSettings();
 
@@ -56,6 +58,7 @@ int main() {
     macrosExecutor.add_macros(appendECToFile);
     macrosExecutor.add_macros(copyFileSetPrefixWithAB);
     macrosExecutor.add_macros(groupPhotosByEC);
+    macrosExecutor.add_macros(groupPhotosByAB);
     macrosExecutor.add_macros(groupDirsByBrand);
     macrosExecutor.add_macros(groupDirsByModel);
     macrosExecutor.add_macros(convertToJpg);
@@ -69,7 +72,7 @@ int main() {
     macrosExecutor.add_macros(renameOldECFoldersToNew);
 
     macrosExecutor.add_separator(3);
-    macrosExecutor.add_separator(6);
+    macrosExecutor.add_separator(7);
 
     macrosExecutor.eventLoop();
 
