@@ -18,6 +18,7 @@
 #include "macros/14_correlate_AB_with_old_EC/correlateABWithOldEC.hxx"
 #include "macros/15_rename_old_EC_folders_to_new/renameOldECFoldersToNew.hxx"
 #include "macros/16_group_files_by_AB/groupPhotosByAB.hxx"
+#include "macros/17_group_AB_dirs_by_brand/groupABDirsByBrand.hxx"
 
 #include <iostream>
 #include <windows.h>
@@ -51,6 +52,7 @@ int main() {
     CorrelateABWithOldEC* correlateABWithOldEC = new CorrelateABWithOldEC();
     RenameOldECFoldersToNew* renameOldECFoldersToNew = new RenameOldECFoldersToNew();
     GroupPhotosByAB* groupPhotosByAB = new GroupPhotosByAB();
+    GroupABDirsByBrand* groupABDirsByBrand = new GroupABDirsByBrand();
 
     SetConsoleSettings();
 
@@ -60,6 +62,7 @@ int main() {
     macrosExecutor.add_macros(groupPhotosByEC);
     macrosExecutor.add_macros(groupPhotosByAB);
     macrosExecutor.add_macros(groupDirsByBrand);
+    macrosExecutor.add_macros(groupABDirsByBrand);
     macrosExecutor.add_macros(groupDirsByModel);
     macrosExecutor.add_macros(convertToJpg);
     macrosExecutor.add_macros(removePrefixesInFiles);
@@ -72,7 +75,7 @@ int main() {
     macrosExecutor.add_macros(renameOldECFoldersToNew);
 
     macrosExecutor.add_separator(3);
-    macrosExecutor.add_separator(7);
+    macrosExecutor.add_separator(8);
 
     macrosExecutor.eventLoop();
 

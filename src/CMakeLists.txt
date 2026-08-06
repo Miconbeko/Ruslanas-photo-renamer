@@ -35,6 +35,7 @@ target_link_libraries(ruslanas-photo-ultimate PRIVATE
     correlateABWithOldEC
     renameOldECFoldersToNew
     groupPhotosByAB
+    groupABDirsByBrand
 
     compiler_flags
 )
